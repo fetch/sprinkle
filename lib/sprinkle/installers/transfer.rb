@@ -53,8 +53,16 @@ module Sprinkle
           final = @destination
           @destination = "/tmp/sprinkle_#{File.basename(@destination)}"
           # make sure we push the move ahead of any other post install tasks
-          # a user may have requested
-          post(:install).unshift ["#{sudo_cmd}mv #{@destination} #{final}"]
+          # a user may have requested.
+          # If @source is a directory move contents and delete tmp dir
+          if File.directory?(@source)
+            post(:install).unshift [
+              "#{sudo_cmd}mv #{@destination}/* #{final}",
+              "#{sudo_cmd}rm -rf #{@destination}"
+            ]
+          else
+            post(:install).unshift ["#{sudo_cmd}mv #{@destination} #{final}"]
+          end
         end
         owner(options[:owner]) if options[:owner]
         mode(options[:mode]) if options[:mode]
