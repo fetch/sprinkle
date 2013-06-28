@@ -15,13 +15,17 @@ module Sprinkle::Package
     rescue Object => e
       raise Sprinkle::Errors::TemplateError.new(e, src, context)
     end
-    
+
     def render(filename, context=binding)
-      contents=File.read(expand_filename(filename))
+      contents = read(filename)
       template(contents, context)
     end
-    
-    # Helper methods can be called from inside your package and 
+
+    def read(filename)
+      File.read(expand_filename(filename))
+    end
+
+    # Helper methods can be called from inside your package and
     # verification code
     module Helpers
       # return the md5 of a string (as a hex string)
@@ -29,9 +33,9 @@ module Sprinkle::Package
         Digest::MD5.hexdigest(s)
       end
     end
-    
-    private 
-    
+
+    private
+
     def expand_filename(n) #:nodoc:
       return n.to_s if n.to_s.starts_with? "/"
       ["./templates/#{n}","./templates/#{n}.erb"].each do |f|
